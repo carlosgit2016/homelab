@@ -1,0 +1,17 @@
+- name: Common
+  hosts: all
+  remote_user: root
+  strategy: free
+  roles:
+    - role: common
+
+- name: containerd Installation
+  hosts: all
+  remote_user: root
+  strategy: free
+  environment:
+    CONTAINERD_VERSION: 1.7.17
+    RUNC_VERSION: 1.1.12
+    CNI_PLUGIN_VERSION: 1.4.1
+  tasks:
+    - include_tasks: roles/common/tasks/containerd.yaml

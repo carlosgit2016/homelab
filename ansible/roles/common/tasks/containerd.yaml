@@ -1,0 +1,22 @@
+- name: Copy containerd-install.sh
+  ansible.builtin.copy:
+    src: containerd-install.sh
+    dest: /tmp/containerd-install.sh
+    mode: 755
+    owner: root
+    group: root
+  register: containerd_install_copy
+
+- name: Copy containerd sha256sum
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /root/
+    mode: 655
+    owner: root
+    group: root
+  with_fileglob: "sha256sum/*"
+  register: sha256sum_copy
+
+- name: containerd installation
+  ansible.builtin.shell: /tmp/containerd-install.sh
+  when: containerd_install_copy.changed or sha256sum_copy.changed

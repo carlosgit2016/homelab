@@ -1,0 +1,23 @@
+- name: Upgrade all packages
+  ansible.builtin.apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+
+- name: Common packages install
+  ansible.builtin.apt:
+    pkg:
+      - vim
+      - net-tools
+      - netcat-traditional
+    state: latest
+
+- name: Configure public key to root
+  ansible.builtin.copy:
+    src: files/authorized_keys
+    dest: /root/.ssh/authorized_keys
+
+- name: Configure public key to cflor
+  ansible.builtin.copy:
+    src: files/authorized_keys
+    dest: /home/cflor/.ssh/authorized_keys
