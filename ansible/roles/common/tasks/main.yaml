@@ -2,7 +2,7 @@
   ansible.builtin.apt:
     name: "*"
     state: latest
-    update_cache: yes
+    update_cache: true
 
 - name: Common packages install
   ansible.builtin.apt:
@@ -10,14 +10,20 @@
       - vim
       - net-tools
       - netcat-traditional
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gpg
     state: latest
 
 - name: Configure public key to root
   ansible.builtin.copy:
     src: files/authorized_keys
     dest: /root/.ssh/authorized_keys
+    mode: "640"
 
 - name: Configure public key to cflor
   ansible.builtin.copy:
     src: files/authorized_keys
     dest: /home/cflor/.ssh/authorized_keys
+    mode: "640"

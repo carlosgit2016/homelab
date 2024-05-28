@@ -1,13 +1,12 @@
 ---
 - name: Info
   hosts: all
-  strategy: free
   remote_user: root
   tasks:
-    - name: info
-      ansible.builtin.shell: |
-        nc 127.0.0.1 6443 -v
+    - name: Info
+      ansible.builtin.command: nc 127.0.0.1 6443 -v
       register: info
-    - name: show info
+      changed_when: true
+    - name: Show info
       ansible.builtin.debug:
         var: info.stdout_lines

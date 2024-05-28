@@ -1,0 +1,9 @@
+---
+- name: Shutdown all hosts
+  hosts: all
+  become: true
+  tasks:
+    - name: Shutdown the system
+      ansible.builtin.command: /sbin/shutdown now
+      failed_when: false
+      changed_when: false
