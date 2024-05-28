@@ -1,0 +1,5 @@
+exclude_paths:
+  - .pre-commit-config.yaml # implicit unless exclude_paths is defined in config
+skip_list:
+  - run-once[play]
+  - package-latest
