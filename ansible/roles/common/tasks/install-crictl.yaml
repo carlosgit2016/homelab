@@ -1,0 +1,25 @@
+- name: Copy config file
+  ansible.builtin.copy:
+    src: crictl.yaml
+    dest: /etc/crictl.yaml
+    mode: '0644'
+    owner: 'root'
+    group: 'root'
+
+- name: Downloading crictl
+  ansible.builtin.get_url:
+    url: https://github.com/kubernetes-sigs/cri-tools/releases/download/v{{ crictl_version }}/crictl-v{{ crictl_version }}-linux-arm64.tar.gz
+    dest: /root/
+    checksum: sha256:3769043fc6018a9e1697fcb768bb89ecd429176bd71e849058916f79a46a07a8
+    mode: '0644'
+    owner: 'root'
+    group: 'root'
+
+- name: Unarchive a file that is already on the remote machine
+  ansible.builtin.unarchive:
+    src: /root/crictl-v{{ crictl_version }}-linux-arm64.tar.gz
+    dest: /usr/bin
+    remote_src: true
+    mode: '0755'
+    owner: 'root'
+    group: 'root'

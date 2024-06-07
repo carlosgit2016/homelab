@@ -17,6 +17,15 @@
     - name: Containerd installation
       ansible.builtin.include_tasks: roles/common/tasks/containerd.yaml
 
+- name: Crictl Installation
+  hosts: all
+  become: true
+  vars:
+    crictl_version: "1.30.0"
+  tasks:
+    - name: Crictl installation
+      ansible.builtin.include_tasks: roles/common/tasks/install-crictl.yaml
+
 - name: Kubeadm, kubelet, kubectl tools installation
   hosts: all
   remote_user: root

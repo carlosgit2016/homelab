@@ -1,0 +1,7 @@
+- name: Reset controlplane
+  hosts: controlplane
+  become: true
+  tasks:
+    - name: Reset k8s cluster
+      ansible.builtin.command: kubeadm reset --force --cleanup-tmp-dir
+      changed_when: true

@@ -1,0 +1,7 @@
+- name: Control plane configuration
+  hosts: controlplane
+  become: true
+  vars:
+    kubernetes_version: "1.30"
+  roles:
+    - role: controlplane

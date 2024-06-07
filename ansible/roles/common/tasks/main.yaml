@@ -27,3 +27,18 @@
     src: files/authorized_keys
     dest: /home/cflor/.ssh/authorized_keys
     mode: "640"
+
+- name: Checking swap status
+  ansible.builtin.command: swapon --show
+  register: swapon_output
+
+- name: Disable swap
+  ansible.builtin.shell: |
+    dphys-swapfile swapoff
+    dphys-swapfile uninstall
+    systemctl stop dphys-swapfile.service
+    systemctl disable dphys-swapfile.service
+    systemctl mask dphys-swapfile.service
+  args:
+    executable: /bin/bash
+  changed_when: swapon_output.stdout != ""
