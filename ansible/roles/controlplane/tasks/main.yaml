@@ -1,0 +1,40 @@
+- name: Copy cmdline firmware
+  ansible.builtin.copy:
+    src: cmdline.txt
+    dest: /boot/firmware/cmdline.txt
+    mode: "0755"
+
+- name: Enable IP forward
+  ansible.builtin.shell: |
+    set -eo pipefail
+    cp /proc/sys/net/ipv4/ip_forward /tmp/
+    sed -i "s|0|1|" /tmp/ip_forward
+    cat /tmp/ip_forward > /proc/sys/net/ipv4/ip_forward
+  args:
+    executable: /bin/bash
+  changed_when: false
+
+- name: Copy kubeadm ClusterConfiguration
+  ansible.builtin.copy:
+    src: kubeadm-clusterconfig.yaml
+    dest: /root/kubeadm-clusterconfig.yaml
+    mode: "0644"
+  register: cluster_config_copy
+
+- name: Cluster init
+  ansible.builtin.command: >-
+    kubeadm init
+    --config=/root/kubeadm-clusterconfig.yaml
+    --ignore-preflight-errors=all
+  changed_when: cluster_config_copy.changed
+  register: cluster_init
+
+- name: Kubectl admin configuration
+  ansible.builtin.shell: |
+    set -e
+    echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> /home/cflor/.bashrc
+    echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> /root/.bashrc
+
+    chmod 640 /etc/kubernetes/admin.conf
+    chown :sudo /etc/kubernetes/admin.conf
+  changed_when: cluster_init.changed

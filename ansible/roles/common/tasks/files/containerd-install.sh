@@ -32,8 +32,5 @@ tar Cxzvf /opt/cni/bin cni-plugins-linux-arm64-v$CNI_PLUGIN_VERSION.tgz
 if [ ! -e /etc/containerd ]; then
     mkdir /etc/containerd
 fi
-containerd config default > /etc/containerd/config.toml
 
-# Setting to use systemd cgroup driver
-sed -i "s|SystemdCgroup\ =\ false|SystemdCgroup\ =\ true|" /etc/containerd/config.toml
 systemctl restart containerd
