@@ -1,0 +1,21 @@
+- name: Add stable chart repo
+  kubernetes.core.helm_repository:
+    name: projectcalico
+    repo_url: https://docs.tigera.io/calico/charts
+
+- name: Deploy calico {{ calico_version }}
+  kubernetes.core.helm:
+    name: calico
+    release_namespace: calico
+    create_namespace: true
+    chart_ref: projectcalico/tigera-operator
+    chart_version: "{{ calico_version }}"
+    values: "{{ lookup('file', 'cni-values.yaml') | from_yaml }}"
+    kubeconfig: "{{ kubeconfig }}"
+    context: "{{ context }}"
+
+- name: Install calicoctl
+  ansible.builtin.get_url:
+    url: "https://github.com/projectcalico/calico/releases/download/v{{ calico_version }}/calicoctl-linux-arm64"
+    dest: /usr/bin/kubectl-calico
+    mode: 755

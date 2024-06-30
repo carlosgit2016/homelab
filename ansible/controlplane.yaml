@@ -5,3 +5,32 @@
     kubernetes_version: "1.30"
   roles:
     - role: controlplane
+  tasks:
+    - name: Tools configuration
+      ansible.builtin.include_tasks: roles/controlplane/tasks/tools.yaml
+
+- name: Configuring CNI
+  hosts: controlplane
+  become: true
+  gather_facts: false
+  vars:
+    calico_version: "3.28.0"
+  tasks:
+    - name: Cni installation
+      ansible.builtin.include_tasks: roles/controlplane/tasks/cni.yaml
+
+- name: Removing taints
+  hosts: controlplane
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Removing taints from leonov node
+      kubernetes.core.k8s_taint:
+        state: absent
+        name: leonov
+        taints:
+          - effect: NoSchedule
+            key: "node-role.kubernetes.io/control-plane"
+        kubeconfig: "{{ kubeconfig }}"
+        context: "{{ context }}"
+      changed_when: false
