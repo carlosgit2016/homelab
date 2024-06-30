@@ -14,6 +14,9 @@
       - ca-certificates
       - curl
       - gpg
+      - telnet
+      - python3-yaml
+      - python3-kubernetes
     state: latest
 
 - name: Configure public key to root
@@ -31,6 +34,7 @@
 - name: Checking swap status
   ansible.builtin.command: swapon --show
   register: swapon_output
+  changed_when: false
 
 - name: Disable swap
   ansible.builtin.shell: |
