@@ -1,0 +1,38 @@
+- name: Generating token or getting one available
+  ansible.builtin.shell: |
+    set -eo pipefail
+
+    existing_token=$(kubeadm token list | grep system:bootstrappers | awk '{print $1}' | head -n1)
+    if [ -n "$existing_token" ]; then
+      echo "$existing_token"
+      exit 0
+    fi
+
+    kubeadm token create
+  args:
+    executable: /bin/bash
+  register: token
+  failed_when: token.rc != 0
+  changed_when: false
+  when: '"controlplane" in group_names'
+
+- name: Retrieving ca cert hash
+  ansible.builtin.shell: |
+    set -eo pipefail
+    openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  args:
+    executable: /bin/bash
+  register: hash
+  failed_when: hash.rc != 0 or hash.stdout == ""
+  changed_when: false
+  when: '"controlplane" in group_names'
+
+- name: Join cluster
+  ansible.builtin.command: |
+    kubeadm join \
+      --token {{ hostvars['leonov']['token']['stdout'] }} {{ hostvars['leonov']['ansible_facts']['default_ipv4']['address'] }}:8080 \
+      --discovery-token-ca-cert-hash sha256:{{ hostvars['leonov']['hash']['stdout'] }}
+  register: join_result
+  failed_when: '"kubelet.conf already exists" not in join_result.stderr'
+  changed_when: '"Success" in join_result.stdout'
+  when: '"nodes" in group_names'

@@ -80,14 +80,36 @@ users:
     client-key: /home/cflor/.homelab/cflor.key
 ```
 
+#### Create a clusterrole binding to give the user access to the desired resources
+Example of a cluster role binding with cluster admin permission
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cflor
+  resourceVersion: "3944821"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: cflor
+```
+
+In this case the user is `cflor`
+
 ### TODO
 - Verify the admin.conf kubeconfig to understand - DONE
 - Sign a certificate to use from the personal laptop - DONE
-- Configure the other instances to join the cluster
+- Configure the other instances to join the cluster - DONE
 - Deploy ArgoCD on it
 - Deploy jackett
 - Start working in the personal blogi
 - Configure Samba in k8s with PV/PVC
+- Refactor the changed_when to when and use changed_when whenever necessary
+- Test how to ensure a pod will restart when a node get an unexpected shutdown
 
 ### Ideas to host in the cluster
 - Jackett

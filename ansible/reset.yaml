@@ -1,5 +1,5 @@
-- name: Reset controlplane
-  hosts: controlplane
+- name: Reset nodes
+  hosts: nodes
   become: true
   tasks:
     - name: Reset k8s cluster

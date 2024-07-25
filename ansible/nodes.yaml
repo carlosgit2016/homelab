@@ -1,0 +1,22 @@
+- name: Node configuration
+  hosts: nodes
+  become: true
+  environment:
+    CONTAINERD_VERSION: "1.7.17"
+    RUNC_VERSION: "1.1.12"
+    CNI_PLUGIN_VERSION: "1.4.1"
+  vars:
+    crictl_version: "1.30.0"
+    kubernetes_version: "1.30"
+  roles:
+    - common
+    - containerd
+    - crictl
+    - k8stools
+
+- name: Join cluster
+  hosts: all
+  gather_facts: true
+  become: true
+  roles:
+    - joincluster

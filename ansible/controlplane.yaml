@@ -1,10 +1,19 @@
 - name: Control plane configuration
   hosts: controlplane
   become: true
+  environment:
+    CONTAINERD_VERSION: "1.7.17"
+    RUNC_VERSION: "1.1.12"
+    CNI_PLUGIN_VERSION: "1.4.1"
   vars:
+    crictl_version: "1.30.0"
     kubernetes_version: "1.30"
   roles:
-    - role: controlplane
+    - common
+    - containerd
+    - crictl
+    - k8stools
+    - controlplane
   tasks:
     - name: Tools configuration
       ansible.builtin.include_tasks: roles/controlplane/tasks/tools.yaml
@@ -19,7 +28,7 @@
     - name: Cni installation
       ansible.builtin.include_tasks: roles/controlplane/tasks/cni.yaml
 
-- name: Removing taints
+- name: Removing taints # K8s add No Schedule taints to the control plane node on purpose for sec reasons
   hosts: controlplane
   become: true
   gather_facts: false
