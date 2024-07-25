@@ -104,7 +104,7 @@ In this case the user is `cflor`
 - Verify the admin.conf kubeconfig to understand - DONE
 - Sign a certificate to use from the personal laptop - DONE
 - Configure the other instances to join the cluster - DONE
-- Deploy ArgoCD on it
+- Deploy ArgoCD on it - DONE
 - Deploy jackett
 - Start working in the personal blogi
 - Configure Samba in k8s with PV/PVC

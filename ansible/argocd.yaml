@@ -1,0 +1,5 @@
+- name: Install Argocd
+  hosts: leonov
+  become: true
+  roles:
+    - argocd

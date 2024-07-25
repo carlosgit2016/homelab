@@ -34,5 +34,5 @@
       --discovery-token-ca-cert-hash sha256:{{ hostvars['leonov']['hash']['stdout'] }}
   register: join_result
   failed_when: '"kubelet.conf already exists" not in join_result.stderr'
-  changed_when: '"Success" in join_result.stdout'
+  changed_when: '"Node join complete" in join_result.stdout'
   when: '"nodes" in group_names'

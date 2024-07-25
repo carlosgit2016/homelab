@@ -1,0 +1,37 @@
+- name: Download argocd manifests v{{ argocd_version }}
+  ansible.builtin.get_url:
+    dest: /root/argocd-install.yaml
+    mode: '0644'
+    url: "https://raw.githubusercontent.com/argoproj/argo-cd/v{{ argocd_version }}/manifests/install.yaml"
+  register: argocd_manifest
+
+- name: Creating argocd namespace
+  kubernetes.core.k8s:
+    name: argocd
+    api_version: v1
+    kind: Namespace
+    kubeconfig: "{{ kubeconfig }}"
+    state: present
+
+- name: Deploy Argocd
+  kubernetes.core.k8s:
+    src: /root/argocd-install.yaml
+    state: present
+    namespace: argocd
+    kubeconfig: "{{ kubeconfig }}"
+
+- name: Get argocd password
+  ansible.builtin.shell: |
+    set -eo pipefail
+    kubectl get secret/argocd-initial-admin-secret -nargocd -ojson | jq -r '.data.password' | base64 -d
+  args:
+    executable: /bin/bash
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
+  register: argocd_password
+  failed_when: argocd_password.stdout == "" or argocd_password.rc != 0
+  changed_when: false
+
+- name: Password
+  ansible.builtin.debug:
+    var: argocd_password.stdout

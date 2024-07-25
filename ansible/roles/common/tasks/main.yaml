@@ -17,6 +17,7 @@
       - telnet
       - python3-yaml
       - python3-kubernetes
+      - jq
     state: latest
 
 - name: Configure public key to root
@@ -46,6 +47,7 @@
   args:
     executable: /bin/bash
   changed_when: swapon_output.stdout != ""
+  when: swapon_output.stdout != ""
 
 - name: Checking if cgroup is enabled in boot
   ansible.builtin.shell: |
