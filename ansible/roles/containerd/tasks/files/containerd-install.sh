@@ -4,6 +4,8 @@ set -e
 
 # Another easy option and probably the one I should went with is to install containerd using apt-get
 
+pushd /root/
+
 # Containerd installation
 curl -SsL -O https://github.com/containerd/containerd/releases/download/v$CONTAINERD_VERSION/containerd-$CONTAINERD_VERSION-linux-arm64.tar.gz
 sha256sum containerd-$CONTAINERD_VERSION-linux-arm64.tar.gz
@@ -32,5 +34,7 @@ tar Cxzvf /opt/cni/bin cni-plugins-linux-arm64-v$CNI_PLUGIN_VERSION.tgz
 if [ ! -e /etc/containerd ]; then
     mkdir /etc/containerd
 fi
+
+popd
 
 systemctl restart containerd

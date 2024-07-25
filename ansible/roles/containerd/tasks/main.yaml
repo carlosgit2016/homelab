@@ -28,4 +28,5 @@
 
 - name: Containerd installation
   ansible.builtin.command: /root/containerd-install.sh
+  when: containerd_install_copy.changed or sha256sum_copy.changed or configtoml_copy.changed
   changed_when: containerd_install_copy.changed or sha256sum_copy.changed or configtoml_copy.changed

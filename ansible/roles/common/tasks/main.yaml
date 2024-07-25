@@ -46,3 +46,33 @@
   args:
     executable: /bin/bash
   changed_when: swapon_output.stdout != ""
+
+- name: Checking if cgroup is enabled in boot
+  ansible.builtin.shell: |
+    for cf in "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory"; do
+      grep --silent -e "$cf" /boot/firmware/cmdline.txt
+    done
+  args:
+    executable: /bin/bash
+  register: cgroup_enabled
+  failed_when: cgroup_enabled.rc == 2
+  changed_when: cgroup_enabled.rc == 1
+
+- name: Enabling cgroup in boot
+  ansible.builtin.shell: |
+    set -eo pipefail
+    sed -i 's|$| cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory|' /boot/firmware/cmdline.txt
+  args:
+    executable: /bin/bash
+  when: cgroup_enabled.rc == 1
+  changed_when: cgroup_enabled.rc == 1
+
+- name: Enable IP forward
+  ansible.builtin.shell: |
+    set -eo pipefail
+    cp /proc/sys/net/ipv4/ip_forward /tmp/
+    sed -i "s|0|1|" /tmp/ip_forward
+    cat /tmp/ip_forward > /proc/sys/net/ipv4/ip_forward
+  args:
+    executable: /bin/bash
+  changed_when: false
