@@ -1,10 +1,3 @@
-- name: Download argocd manifests v{{ argocd_version }}
-  ansible.builtin.get_url:
-    dest: /root/argocd-install.yaml
-    mode: '0644'
-    url: "https://raw.githubusercontent.com/argoproj/argo-cd/v{{ argocd_version }}/manifests/install.yaml"
-  register: argocd_manifest
-
 - name: Creating argocd namespace
   kubernetes.core.k8s:
     name: argocd
@@ -13,11 +6,40 @@
     kubeconfig: "{{ kubeconfig }}"
     state: present
 
+- name: Add Argocd chart
+  kubernetes.core.helm_repository:
+    name: argocd
+    repo_url: "https://argoproj.github.io/argo-helm/?ref={{ argocd_chart_version }}"
+
+- name: Copy argocd-values to host
+  ansible.builtin.copy:
+    src: argocd-values.yaml
+    dest: /root/argocd-values.yaml
+    mode: "0644"
+
 - name: Deploy Argocd
+  kubernetes.core.helm:
+    name: argocd
+    chart_ref: argocd/argo-cd
+    chart_version: "{{ argocd_chart_version }}"
+    release_namespace: argocd
+    wait: true
+    update_repo_cache: true
+    kubeconfig: "{{ kubeconfig }}"
+    values_files:
+      - /root/argocd-values.yaml
+
+- name: Copy nginx definition
+  ansible.builtin.copy:
+    src: nginx.yaml
+    dest: /root/nginx.yaml
+    mode: "0644"
+  register: nginx_definition
+
+- name: Deploy nginx controller
   kubernetes.core.k8s:
-    src: /root/argocd-install.yaml
+    src: /root/nginx.yaml
     state: present
-    namespace: argocd
     kubeconfig: "{{ kubeconfig }}"
 
 - name: Get argocd password
