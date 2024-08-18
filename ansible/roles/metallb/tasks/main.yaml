@@ -1,0 +1,17 @@
+- name: Copy metallb configuration
+  ansible.builtin.copy:
+    src: metallb.application.yaml
+    dest: /root/ipaddresspool.yaml
+    mode: "0644"
+
+- name: Copy metallb configuration
+  ansible.builtin.copy:
+    src: metallb.application.yaml
+    dest: /root/metallb.application.yaml
+    mode: "0644"
+
+- name: Deploy metallb
+  kubernetes.core.k8s:
+    src: /root/metallb.application.yaml
+    state: present
+    kubeconfig: "{{ kubeconfig }}"

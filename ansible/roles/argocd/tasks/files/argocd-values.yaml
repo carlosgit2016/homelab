@@ -1,3 +1,11 @@
+## Global configs
+global:
+  domain: cflor.argocd.io
+
+configs:
+  params:
+    server.insecure: true
+
 ## Server
 server:
   # -- Argo CD server name
