@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: jackett
+  name: jackett-app
   namespace: argocd
 spec:
   project: default

@@ -17,10 +17,11 @@ spec:
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                - key: node-role.kubernetes.io/control-plane
-                  operator: DoesNotExist
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: DoesNotExist
       terminationGracePeriodSeconds: 10
       containers:
       - name: jackett
