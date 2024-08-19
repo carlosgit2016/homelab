@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nfs
+  name: nfs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs
+  template:
+    metadata:
+      labels:
+        app: nfs
+    spec:
+      containers:
+      - image: carlosflor25/nfs-server:latest
+        name: nfs-server
+        resources: {}
+        ports:
+          - name: nfs
+            containerPort: 2049
+        volumeMounts:
+          - name: data
+            mountPath: /data
+        env:
+          - name: NFS_EXPORT_0
+            value: '/data                  *(ro,no_subtree_check)'
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+            - "SYS_ADMIN"
+          allowPrivilegeEscalation: true
+      volumes:
+      - name: data
+        hostPath:
+          path: /opt/data
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: nfs-server
+                  operator: Exists
