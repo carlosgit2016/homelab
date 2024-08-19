@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jackett
+  namespace: jackett
+spec:
+  selector:
+    matchLabels:
+      app: jackett # has to match .spec.template.metadata.labels
+  minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      namespace: jackett
+      labels:
+        app: jackett # has to match .spec.selector.matchLabels
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: DoesNotExist
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: jackett
+        image: lscr.io/linuxserver/jackett:latest
+        ports:
+        - containerPort: 9117
+          name: jackett
+        volumeMounts:
+        - name: data
+          mountPath: /downloads
+        - name: data
+          mountPath: /config
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Etc/UTC"
+        - name: AUTO_UPDATE
+          value: "true"
+      volumes:
+        - name: data
+          emptyDir: {}
