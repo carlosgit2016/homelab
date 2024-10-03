@@ -18,6 +18,7 @@
       - python3-yaml
       - python3-kubernetes
       - jq
+      - open-iscsi
     state: latest
 
 - name: Configure public key to root
