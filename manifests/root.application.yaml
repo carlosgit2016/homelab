@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/carlosgit2016/homelab.git
     path: manifests/applications
-    targetRevision: HEADlonghorn
+    targetRevision: HEAD
     directory:
      recurse: false
      include: '*.application.yaml'
