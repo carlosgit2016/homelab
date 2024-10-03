@@ -50,5 +50,7 @@ spec:
         accessModes: [ "ReadWriteOnce" ]
         storageClassName: "longhorn"
         resources:
-          requests:
+          limits:
             storage: 1Gi
+          requests:
+            storage: 100Mi
