@@ -7,7 +7,7 @@ spec:
   project: default
   sources:
     - repoURL: https://github.com/carlosgit2016/homelab.git
-      targetRevision: HEADlonghorn
+      targetRevision: HEAD
       ref: valuesRepo
 
     - repoURL: https://charts.longhorn.io

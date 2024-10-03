@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/carlosgit2016/homelab.git
     path: manifests/jackett
-    targetRevision: HEADlonghorn
+    targetRevision: HEAD
     directory:
      recurse: false
      include: '*.yaml'
