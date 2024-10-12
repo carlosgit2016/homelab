@@ -15,6 +15,11 @@ spec:
     port: 6881
     protocol: TCP
     targetPort: 6881
+  - name: "upnp"
+    port: 1900
+    nodePort: 31900
+    targetPort: 1900
+    protocol: UDP
   selector:
     app: qbittorrent
   type: NodePort
