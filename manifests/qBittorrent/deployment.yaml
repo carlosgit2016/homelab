@@ -15,14 +15,18 @@ spec:
       labels:
         app: qbittorrent
     spec:
+      hostNetwork: true
+      nodeName: vengeance
       containers:
       - image: lscr.io/linuxserver/qbittorrent:latest
         name: qbittorrent
         ports:
           - name: ui
-            containerPort: 8080
+            containerPort: 8096
           - name: torrent
             containerPort: 6881
+          - name: upnp
+            containerPort: 1900
         env:
           - name: PUID
             value: "1000"
@@ -31,7 +35,7 @@ spec:
           - name: TZ
             value: "Etc/UTC"
           - name: WEBUI_PORT
-            value: "8080"
+            value: "8096"
           - name: TORRENTING_PORT
             value: "6881"
         volumeMounts:

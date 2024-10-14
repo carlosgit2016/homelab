@@ -118,14 +118,15 @@ ansible all -b -i inventory.yaml -a "sudo systemctl restart kubelet" -m shell
 - Sign a certificate to use from the personal laptop - DONE
 - Configure the other instances to join the cluster - DONE
 - Deploy ArgoCD on it - DONE
-- Deploy jackett
-- Start working in the personal blogi
+- Deploy jackett - DONE
+- Deploy qBittorrent - DONE
+- Deploy radarr - DONE
+- Start working in the personal blog
 - Configure Samba in k8s with PV/PVC
 - Refactor the changed_when to when and use changed_when whenever necessary
 - Test how to ensure a pod will restart when a node get an unexpected shutdown
 
 ### Ideas to host in the cluster
-- Jackett
 - Personal blog
 - Plex server / DNLA
 - Cripto Miner
