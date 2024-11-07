@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/carlosgit2016/homelab.git
-    path: manifests/qbittorrent
+    path: manifests/qBittorrent
     targetRevision: HEAD
     directory:
      recurse: false

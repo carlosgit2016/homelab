@@ -15,8 +15,4 @@ spec:
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: rbac
-
-  syncPolicy:
-    syncOptions:
-      - CreateNamespace=true
+    namespace: default
