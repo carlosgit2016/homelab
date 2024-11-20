@@ -79,3 +79,18 @@
   args:
     executable: /bin/bash
   changed_when: false
+
+- name: Copy /etc/hosts
+  register: copy_additional_hosts
+  ansible.builtin.copy:
+    src: files/additional_hosts
+    dest: /tmp/additional_hosts
+    mode: '440'
+
+- name: Updating /etc/hosts
+  ansible.builtin.shell: |
+    cat /tmp/additional_hosts >> /etc/hosts
+  args:
+    executable: /bin/bash
+  changed_when: copy_additional_hosts.changed
+  when: copy_additional_hosts.changed
