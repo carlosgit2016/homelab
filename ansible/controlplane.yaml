@@ -2,13 +2,14 @@
   hosts: controlplane
   become: true
   environment:
-    CONTAINERD_VERSION: "1.7.17"
-    RUNC_VERSION: "1.1.12"
-    CNI_PLUGIN_VERSION: "1.4.1"
+    CONTAINERD_VERSION: "2.0.0"
+    RUNC_VERSION: "1.2.2"
+    CNI_PLUGIN_VERSION: "1.6.0"
   vars:
-    crictl_version: "1.30.0"
-    kubernetes_version: "1.30"
+    crictl_version: "1.31.1"
+    kubernetes_version: "1.31"
   roles:
+    - sourcesupdate
     - common
     - containerd
     - crictl
@@ -23,7 +24,7 @@
   become: true
   gather_facts: false
   vars:
-    calico_version: "3.28.0"
+    calico_version: "3.29.0"
   tasks:
     - name: Cni installation
       ansible.builtin.include_tasks: roles/controlplane/tasks/cni.yaml
@@ -33,10 +34,10 @@
   become: true
   gather_facts: false
   tasks:
-    - name: Removing taints from leonov node
+    - name: Removing taints from vengeance node
       kubernetes.core.k8s_taint:
         state: absent
-        name: leonov
+        name: vengeance
         taints:
           - effect: NoSchedule
             key: "node-role.kubernetes.io/control-plane"

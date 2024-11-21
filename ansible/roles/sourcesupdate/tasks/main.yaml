@@ -1,0 +1,31 @@
+- name: Add apt helm key
+  ansible.builtin.apt_key:
+    url: https://baltocdn.com/helm/signing.asc
+    state: present
+    id: 294AC4827C1A168A
+    keyring: /etc/apt/keyrings/helm.gpg
+
+- name: Download k8s packages key
+  ansible.builtin.get_url:
+    url: "https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_version }}/deb/Release.key"
+    dest: /root/Release.key
+    mode: '600'
+  register: k8s_pkgs
+
+- name: Copy Kubernetes release key
+  ansible.builtin.shell: |
+    set -eo pipefail
+    cat /root/Release.key | gpg --dearmor --yes -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  changed_when: k8s_pkgs.changed
+  args:
+    executable: /bin/bash
+
+- name: Add specified repository into sources list
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=arm64 signed-by=/etc/apt/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main"
+    state: present
+
+- name: Add Kubernetes APT repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_version }}/deb/ /"
+    state: present
