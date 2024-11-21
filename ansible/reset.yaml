@@ -1,7 +1,5 @@
-- name: Reset nodes
-  hosts: nodes
+- name: Cluster cleanup
+  hosts: all
   become: true
-  tasks:
-    - name: Reset k8s cluster
-      ansible.builtin.command: kubeadm reset --force --cleanup-tmp-dir
-      changed_when: true
+  roles:
+    - cleanup

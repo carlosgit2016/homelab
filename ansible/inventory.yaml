@@ -1,14 +1,14 @@
 controlplane:
   hosts:
-    leonov:
-      ansible_host: 192.168.1.9
+    vengeance:
+      ansible_host: 192.168.1.12
   vars:
-    context: kubernetes-admin@leonov
+    context: kubernetes-admin@vengeance
     kubeconfig: /etc/kubernetes/admin.conf
 
 nodes:
   hosts:
-    vengeance:
-      ansible_host: 192.168.1.12
-    goliath:
-      ansible_host: 192.168.1.11
+    leonov:
+      ansible_host: 192.168.1.9
+      #    goliath:
+      #      ansible_host: 192.168.1.11

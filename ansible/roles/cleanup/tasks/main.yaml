@@ -1,0 +1,34 @@
+- name: Running kubeadm reset
+  ansible.builtin.shell: |
+    if [ -e /usr/bin/kubeadm ]; then
+      kubeadm reset --force --cleanup-tmp-dir
+    fi
+  register: kubeadm_reset
+  changed_when: kubeadm_reset.stdout != ""
+
+- name: Removing kubectl, kubeadm and kubelet
+  ansible.builtin.apt:
+    pkg:
+    - kubectl
+    - kubeadm
+    - kubelet
+    state: absent
+
+- name: Copy cleanup script
+  ansible.builtin.copy:
+    src: files/cleanup.sh
+    dest: /tmp/cleanup.sh
+    mode: '0754'
+  register: cleanup_copy
+
+- name: cni, runc, /root* cleanup
+  ansible.builtin.command: /tmp/cleanup.sh >> /var/log/cleanup.log
+
+- name: Remove useless packages from the cache
+  ansible.builtin.apt:
+    autoclean: yes
+
+- name: Remove dependencies that are no longer required and purge their configuration files
+  ansible.builtin.apt:
+    autoremove: yes
+    purge: true
