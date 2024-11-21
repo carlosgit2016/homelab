@@ -26,7 +26,7 @@ install -m 755 runc.arm64 /usr/local/sbin/runc
 curl -SsL -O https://github.com/containernetworking/plugins/releases/download/v$CNI_PLUGIN_VERSION/cni-plugins-linux-arm64-v$CNI_PLUGIN_VERSION.tgz
 sha256sum "cni-plugins-linux-arm64-v$CNI_PLUGIN_VERSION.tgz"
 if [ ! -e /opt/cni/bin ]; then
-    mkdir /opt/cni/bin
+    mkdir -p /opt/cni/bin
 fi
 tar Cxzvf /opt/cni/bin cni-plugins-linux-arm64-v$CNI_PLUGIN_VERSION.tgz
 

@@ -13,6 +13,7 @@
     values: "{{ lookup('file', 'cni-values.yaml') | from_yaml }}"
     kubeconfig: "{{ kubeconfig }}"
     context: "{{ context }}"
+    update_repo_cache: true
 
 - name: Install calicoctl
   ansible.builtin.get_url:

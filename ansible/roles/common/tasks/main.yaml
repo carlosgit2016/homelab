@@ -19,6 +19,7 @@
       - python3-kubernetes
       - jq
       - open-iscsi
+      - git
     state: latest
 
 - name: Configure public key to root

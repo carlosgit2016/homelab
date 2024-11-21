@@ -1,24 +1,3 @@
-- name: Download k8s packages key
-  ansible.builtin.get_url:
-    url: "https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_version }}/deb/Release.key"
-    dest: /root/Release.key
-    checksum: sha256:5fe267a9ae47ffd566624057f2c8f64ab8a786a9c650e92cc22135381b04f12b
-    mode: '600'
-  register: k8s_pkgs
-
-- name: Copy Kubernetes release key
-  ansible.builtin.shell: |
-    set -eo pipefail
-    cat /root/Release.key | gpg --dearmor --yes -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-  changed_when: k8s_pkgs.changed
-  args:
-    executable: /bin/bash
-
-- name: Add Kubernetes APT repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_version }}/deb/ /"
-    state: present
-
 - name: Installing kubeadm, kubelet and kubectl
   ansible.builtin.apt:
     update_cache: true

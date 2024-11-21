@@ -1,5 +1,5 @@
 - name: Install Argocd
-  hosts: leonov
+  hosts: controlplane
   become: true
   roles:
     - argocd
