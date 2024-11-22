@@ -29,19 +29,6 @@
     values_files:
       - /root/argocd-values.yaml
 
-- name: Copy nginx definition
-  ansible.builtin.copy:
-    src: nginx.yaml
-    dest: /root/nginx.yaml
-    mode: "0644"
-  register: nginx_definition
-
-- name: Deploy nginx controller
-  kubernetes.core.k8s:
-    src: /root/nginx.yaml
-    state: present
-    kubeconfig: "{{ kubeconfig }}"
-
 - name: Get argocd password
   ansible.builtin.shell: |
     set -eo pipefail
