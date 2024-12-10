@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-app
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/carlosgit2016/homelab.git
+      targetRevision: HEAD
+      ref: valuesRepo
+
+    - repoURL: https://charts.bitnami.com/bitnami
+      targetRevision: "18.2.6"
+      chart: nginx
+      helm:
+        valueFiles:
+          - $valuesRepo/manifests/nginx/values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: longhorn-system
+
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
