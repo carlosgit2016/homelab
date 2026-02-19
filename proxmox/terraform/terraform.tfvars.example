@@ -1,0 +1,2 @@
+proxmox_api_token_secret = "your-api-token-secret-here"
+ssh_public_key          = "ssh-rsa AAAA... your-key-here"
