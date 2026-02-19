@@ -1,1 +1,16 @@
 **/ansible.log
+docs/**
+
+# Packer secrets and build artifacts
+proxmox/packer/*.pkrvars.hcl
+!proxmox/packer/*.pkrvars.hcl.example
+proxmox/packer/packer_cache/
+proxmox/packer/crash.log
+
+# Terraform secrets and state
+proxmox/terraform/*.tfvars
+!proxmox/terraform/*.tfvars.example
+proxmox/terraform/.terraform/
+proxmox/terraform/*.tfstate
+proxmox/terraform/*.tfstate.backup
+proxmox/terraform/.terraform.lock.hcl
