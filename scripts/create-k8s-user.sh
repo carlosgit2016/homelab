@@ -2,7 +2,8 @@
 set -e
 
 USERNAME="${1:-cflor}"
-KUBECONFIG="${2:-/etc/kubernetes/admin.conf}"
+CONTROL_PLANE="${2:-192.168.15.20}"
+KUBECONFIG="/etc/kubernetes/admin.conf"
 OUTPUT_DIR="$HOME/.kube/contexts"
 
 echo "Creating Kubernetes user: $USERNAME"
@@ -35,21 +36,23 @@ spec:
   - client auth
 EOF
 
+# Copy CSR manifest to control plane
+scp "/tmp/${USERNAME}-k8s-csr.yaml" "${CONTROL_PLANE}:/tmp/${USERNAME}-k8s-csr.yaml"
+
 # Apply CSR
-kubectl apply -f "/tmp/${USERNAME}-k8s-csr.yaml" --kubeconfig="$KUBECONFIG"
+ssh "$CONTROL_PLANE" "kubectl apply -f /tmp/${USERNAME}-k8s-csr.yaml --kubeconfig=$KUBECONFIG"
 
 # Approve CSR
-kubectl certificate approve "$USERNAME" --kubeconfig="$KUBECONFIG"
+ssh "$CONTROL_PLANE" "kubectl certificate approve $USERNAME --kubeconfig=$KUBECONFIG"
 
 # Wait for certificate
 sleep 2
 
 # Get signed certificate
-kubectl get csr "$USERNAME" -o jsonpath='{.status.certificate}' --kubeconfig="$KUBECONFIG" | base64 -d > "$OUTPUT_DIR/${USERNAME}.crt"
+ssh "$CONTROL_PLANE" "kubectl get csr $USERNAME -o jsonpath='{.status.certificate}' --kubeconfig=$KUBECONFIG" | base64 -d > "$OUTPUT_DIR/${USERNAME}.crt"
 
-# Copy CA certificate
-sudo cp /etc/kubernetes/pki/ca.crt "$OUTPUT_DIR/ca.crt"
-sudo chown $USER:$USER "$OUTPUT_DIR/ca.crt"
+# Copy CA certificate from control plane
+scp "${CONTROL_PLANE}:/etc/kubernetes/pki/ca.crt" "$OUTPUT_DIR/ca.crt"
 
 # Generate kubeconfig
 cat > "$OUTPUT_DIR/${USERNAME}-config" <<EOF
@@ -80,8 +83,10 @@ chmod 600 "$OUTPUT_DIR/${USERNAME}.key" "$OUTPUT_DIR/${USERNAME}.crt" "$OUTPUT_D
 
 # Cleanup
 rm -f "/tmp/${USERNAME}.csr" "/tmp/${USERNAME}-k8s-csr.yaml"
+ssh "$CONTROL_PLANE" "rm -f /tmp/${USERNAME}-k8s-csr.yaml"
 
 echo "✓ User created successfully"
 echo "  Kubeconfig: $OUTPUT_DIR/${USERNAME}-config"
+echo "  Control plane: $CONTROL_PLANE"
 echo ""
 echo "Test with: kubectl --kubeconfig=$OUTPUT_DIR/${USERNAME}-config get nodes"

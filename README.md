@@ -63,7 +63,7 @@ Provisioned via Packer template + Terraform. See `proxmox/README.md`.
 
 **Radarr** - http://192.168.15.20:30320
 
-**Longhorn** - `kubectl port-forward svc/longhorn-frontend -n longhorn-system 8000:80`
+**Longhorn** - http://192.168.15.20:30318
 
 ### Create Kubernetes User
 

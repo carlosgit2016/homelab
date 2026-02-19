@@ -6,18 +6,29 @@ metadata:
 spec:
   project: default
 
-  source:
-    repoURL: https://argoproj.github.io/argo-helm
-    targetRevision: 9.4.2 # For Helm, this refers to the chart version.
+  sources:
+    - repoURL: https://github.com/carlosgit2016/homelab.git
+      targetRevision: HEAD
+      ref: valuesRepo
 
-    chart: argo/argo-cd  # Set this when pulling directly from a Helm repo. DO NOT set for git-hosted Helm charts.
-    helm:
-      releaseName: argo-cd
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argo-cd
+      targetRevision: "9.4.2"
+      helm:
+        valueFiles:
+        - $valuesRepo/ansible/roles/argocd/tasks/files/argocd-values.yaml
 
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
 
   syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: false
+      allowEmpty: false
     syncOptions:
       - CreateNamespace=true
+      - PruneLast=true
+      - ServerSideApply=true
