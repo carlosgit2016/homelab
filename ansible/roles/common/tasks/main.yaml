@@ -39,7 +39,20 @@
   register: swapon_output
   changed_when: false
 
-- name: Disable swap
+# ==============================================================================
+# Raspberry Pi Bare-Metal Support
+# The following tasks handle Raspberry Pi-specific configurations (dphys-swapfile,
+# boot firmware cmdline). These are skipped on non-Raspberry Pi systems via
+# conditional checks. Required for alternative bare-metal deployments on RPi hardware.
+# ==============================================================================
+
+- name: Check if dphys-swapfile exists (Raspberry Pi)
+  ansible.builtin.command: which dphys-swapfile
+  register: dphys_swapfile_check
+  failed_when: false
+  changed_when: false
+
+- name: Disable swap (Raspberry Pi with dphys-swapfile)
   ansible.builtin.shell: |
     dphys-swapfile swapoff
     dphys-swapfile uninstall
@@ -49,7 +62,21 @@
   args:
     executable: /bin/bash
   changed_when: swapon_output.stdout != ""
-  when: swapon_output.stdout != ""
+  when: swapon_output.stdout != "" and dphys_swapfile_check.rc == 0
+
+- name: Disable swap (Standard Debian/Ubuntu)
+  ansible.builtin.shell: |
+    swapoff -a
+    sed -i '/swap/d' /etc/fstab
+  args:
+    executable: /bin/bash
+  changed_when: swapon_output.stdout != ""
+  when: swapon_output.stdout != "" and dphys_swapfile_check.rc != 0
+
+- name: Check if boot firmware cmdline exists (Raspberry Pi)
+  ansible.builtin.stat:
+    path: /boot/firmware/cmdline.txt
+  register: boot_cmdline_stat
 
 - name: Checking if cgroup is enabled in boot
   ansible.builtin.shell: |
@@ -61,6 +88,7 @@
   register: cgroup_enabled
   failed_when: cgroup_enabled.rc == 2
   changed_when: cgroup_enabled.rc == 1
+  when: boot_cmdline_stat.stat.exists
 
 - name: Enabling cgroup in boot
   ansible.builtin.shell: |
@@ -68,7 +96,7 @@
     sed -i 's|$| cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory|' /boot/firmware/cmdline.txt
   args:
     executable: /bin/bash
-  when: cgroup_enabled.rc == 1
+  when: boot_cmdline_stat.stat.exists and cgroup_enabled.rc == 1
   changed_when: cgroup_enabled.rc == 1
 
 - name: Enable IP forward
