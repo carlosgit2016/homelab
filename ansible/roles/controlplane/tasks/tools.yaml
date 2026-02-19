@@ -1,8 +1,13 @@
-- name: Helm package install
-  ansible.builtin.apt:
-    pkg: helm
-    state: latest
-    update_cache: true
+- name: Download Helm install script
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    dest: /tmp/get_helm.sh
+    mode: '0700'
+
+- name: Install Helm
+  ansible.builtin.shell: /tmp/get_helm.sh
+  args:
+    creates: /usr/local/bin/helm
 
 - name: Install Helm diff plugin # To improve idempotency in helm charts installation
   kubernetes.core.helm_plugin:

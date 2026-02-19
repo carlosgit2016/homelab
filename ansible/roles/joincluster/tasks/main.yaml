@@ -30,9 +30,9 @@
 - name: Join cluster
   ansible.builtin.command: |
     kubeadm join \
-      --token {{ hostvars['vengeance']['token']['stdout'] }} {{ hostvars['vengeance']['ansible_facts']['default_ipv4']['address'] }}:6443 \
-      --discovery-token-ca-cert-hash sha256:{{ hostvars['vengeance']['hash']['stdout'] }}
+      --token {{ hostvars[groups['controlplane'][0]]['token']['stdout'] }} {{ hostvars[groups['controlplane'][0]]['ansible_facts']['default_ipv4']['address'] }}:6443 \
+      --discovery-token-ca-cert-hash sha256:{{ hostvars[groups['controlplane'][0]]['hash']['stdout'] }}
   register: join_result
-  failed_when: '"kubelet.conf already exists" not in join_result.stderr'
-  changed_when: '"Node join complete" in join_result.stdout'
+  failed_when: join_result.rc != 0 and 'kubelet.conf already exists' not in join_result.stderr
+  changed_when: '"This node has joined the cluster" in join_result.stdout or "Node join complete" in join_result.stdout'
   when: '"nodes" in group_names'
