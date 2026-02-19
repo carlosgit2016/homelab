@@ -8,7 +8,7 @@ spec:
 
   source:
     repoURL: https://argoproj.github.io/argo-helm
-    targetRevision: 7.7.5 # For Helm, this refers to the chart version.
+    targetRevision: 9.4.2 # For Helm, this refers to the chart version.
 
     chart: argo/argo-cd  # Set this when pulling directly from a Helm repo. DO NOT set for git-hosted Helm charts.
     helm:
