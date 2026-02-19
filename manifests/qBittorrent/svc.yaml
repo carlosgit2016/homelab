@@ -6,10 +6,10 @@ metadata:
   name: qbittorrent
 spec:
   ports:
-  - name: "http"
+  - name: "ui"
     port: 80
     protocol: TCP
-    targetPort: 8080
+    targetPort: 8096
     nodePort: 30321
   - name: "torrent"
     port: 6881

@@ -12,6 +12,47 @@ General-purpose Kubernetes homelab for self-hosted services and infrastructure e
 
 Provisioned via Packer template + Terraform. See `proxmox/README.md`.
 
+### Infrastructure Overview
+
+```mermaid
+graph LR
+    subgraph Hardware["Hardware"]
+        HW["Intel Core i7-1185G7 (11th Gen)<br/>8 cores @ 3.00GHz<br/>15GB RAM | 94GB Storage"]
+    end
+
+    subgraph Proxmox["Proxmox VE"]
+        PVE["Proxmox VE<br/>Linux 6.17.2-1-pve"]
+    end
+
+    subgraph VMs["Virtual Machines - Debian 13"]
+        VM1["phoenix<br/>192.168.15.20<br/>6GB RAM | 4 vCPU<br/>Control Plane"]
+        VM2["yamato<br/>192.168.15.21<br/>4GB RAM | 2 vCPU<br/>Worker Node"]
+        VM3["defcom<br/>192.168.15.22<br/>4GB RAM | 2 vCPU<br/>Worker Node"]
+    end
+
+    subgraph K8s["Kubernetes Layer - v1.31"]
+        Runtime["Container Runtime<br/>containerd 2.0.0<br/>runc 1.2.2"]
+        CNI["Network<br/>Calico CNI 3.29.0"]
+        API["Kubernetes API<br/>192.168.15.20:6443"]
+    end
+
+    subgraph Apps["Applications"]
+        subgraph Infra["Infrastructure and CI/CD"]
+            ArgoCD["ArgoCD 7.6.12+<br/>GitOps Controller"]
+            Nginx["Nginx Ingress<br/>HTTP/HTTPS Routing"]
+            Longhorn["Longhorn 1.7.1<br/>Distributed Storage"]
+            Metrics["Metrics Server<br/>Resource Metrics"]
+            Prometheus["Kube-Prometheus 66.2.1<br/>Monitoring Stack"]
+        end
+        subgraph Media["Apps"]
+            Jackett["Jackett<br/>:30319"]
+            qBit["qBittorrent<br/>:30321"]
+            Radarr["Radarr<br/>:30320"]
+        end
+    end
+
+```
+
 ### Stack
 - Kubernetes 1.31 (kubeadm)
 - containerd 2.0.0 / runc 1.2.2
