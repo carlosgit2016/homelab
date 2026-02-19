@@ -1,24 +1,62 @@
+- name: Get control plane node IP
+  ansible.builtin.set_fact:
+    control_plane_ip: "{{ ansible_default_ipv4.address }}"
+
+- name: Check if cluster is already initialized
+  ansible.builtin.stat:
+    path: /etc/kubernetes/admin.conf
+  register: cluster_initialized
+
 - name: Copy kubeadm ClusterConfiguration
-  ansible.builtin.copy:
-    src: kubeadm-clusterconfig.yaml
+  ansible.builtin.template:
+    src: kubeadm-clusterconfig.yaml.j2
     dest: /root/kubeadm-clusterconfig.yaml
     mode: "0644"
-  register: cluster_config_copy
+  when: not cluster_initialized.stat.exists
 
 - name: Cluster init
   ansible.builtin.command: >-
     kubeadm init
     --config=/root/kubeadm-clusterconfig.yaml
     --ignore-preflight-errors=all
-  changed_when: cluster_config_copy.changed
+  when: not cluster_initialized.stat.exists
   register: cluster_init
 
-- name: Kubectl admin configuration
-  ansible.builtin.shell: |
-    set -e
-    echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> /home/cflor/.bashrc
-    echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> /root/.bashrc
+- name: Check if KUBECONFIG already in bashrc (cflor)
+  ansible.builtin.lineinfile:
+    path: /home/cflor/.bashrc
+    line: "export KUBECONFIG=/etc/kubernetes/admin.conf"
+    state: present
+  check_mode: true
+  register: kubeconfig_cflor_check
+  changed_when: false
 
-    chmod 640 /etc/kubernetes/admin.conf
-    chown :sudo /etc/kubernetes/admin.conf
-  changed_when: cluster_init.changed
+- name: Check if KUBECONFIG already in bashrc (root)
+  ansible.builtin.lineinfile:
+    path: /root/.bashrc
+    line: "export KUBECONFIG=/etc/kubernetes/admin.conf"
+    state: present
+  check_mode: true
+  register: kubeconfig_root_check
+  changed_when: false
+
+- name: Add KUBECONFIG to bashrc (cflor)
+  ansible.builtin.lineinfile:
+    path: /home/cflor/.bashrc
+    line: "export KUBECONFIG=/etc/kubernetes/admin.conf"
+    state: present
+  when: kubeconfig_cflor_check is changed
+
+- name: Add KUBECONFIG to bashrc (root)
+  ansible.builtin.lineinfile:
+    path: /root/.bashrc
+    line: "export KUBECONFIG=/etc/kubernetes/admin.conf"
+    state: present
+  when: kubeconfig_root_check is changed
+
+- name: Set admin.conf permissions
+  ansible.builtin.file:
+    path: /etc/kubernetes/admin.conf
+    mode: "0640"
+    group: sudo
+  when: cluster_initialized.stat.exists
