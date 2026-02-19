@@ -9,13 +9,13 @@ bootstrapTokens:
   - authentication
 kind: InitConfiguration
 localAPIEndpoint:
-  advertiseAddress: 192.168.1.12
+  advertiseAddress: {{ control_plane_ip }}
   bindPort: 6443
 nodeRegistration:
   criSocket: unix:///var/run/containerd/containerd.sock
   imagePullPolicy: IfNotPresent
   imagePullSerial: true
-  name: vengeance
+  name: {{ inventory_hostname }}
   taints:
   - effect: NoSchedule
     key: node-role.kubernetes.io/control-plane
@@ -33,7 +33,8 @@ apiVersion: kubeadm.k8s.io/v1beta4
 caCertificateValidityPeriod: 87600h0m0s
 certificateValidityPeriod: 8760h0m0s
 certificatesDir: /etc/kubernetes/pki
-clusterName: vengeance
+clusterName: {{ inventory_hostname }}
+controlPlaneEndpoint: "{{ control_plane_ip }}:6443"
 controllerManager: {}
 dns: {}
 encryptionAlgorithm: RSA-2048
@@ -42,7 +43,7 @@ etcd:
     dataDir: /var/lib/etcd
 imageRepository: registry.k8s.io
 kind: ClusterConfiguration
-kubernetesVersion: v1.31.2
+kubernetesVersion: v1.35.0
 networking:
   dnsDomain: cflor.org
   podSubnet: 172.16.0.0/16
