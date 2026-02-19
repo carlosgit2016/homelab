@@ -20,6 +20,7 @@
       - jq
       - open-iscsi
       - git
+      - nfs-common
     state: latest
 
 - name: Configure public key to root
