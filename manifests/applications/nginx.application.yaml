@@ -10,9 +10,9 @@ spec:
       targetRevision: HEAD
       ref: valuesRepo
 
-    - repoURL: https://github.com/bitnami/charts.git
-      targetRevision: "nginx-ingress-controller/12.0.8"
-      path: bitnami/nginx-ingress-controller
+    - repoURL: https://kubernetes.github.io/ingress-nginx
+      targetRevision: "4.14.3"
+      path: ingress-nginx/ingress-nginx
       helm:
         valueFiles:
           - $valuesRepo/manifests/nginx/values.yaml
