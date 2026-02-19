@@ -1,0 +1,2 @@
+proxmox_api_token_id     = "terraform-prov@pve!homelab"
+proxmox_api_token_secret = "your-token-secret-here"
