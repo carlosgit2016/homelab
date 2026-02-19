@@ -44,3 +44,32 @@
 - name: Password
   ansible.builtin.debug:
     var: argocd_password.stdout
+
+- name: Wait for ArgoCD API to be ready
+  ansible.builtin.command: >-
+    kubectl wait --for=condition=available --timeout=300s
+    deployment/argocd-server -n argocd
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
+  changed_when: false
+
+- name: Deploy root ArgoCD application
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('file', '/home/cflor/git/personal.d/homelab/manifests/root.application.yaml') }}"
+    kubeconfig: "{{ kubeconfig }}"
+
+- name: Wait for root application to be created
+  ansible.builtin.pause:
+    seconds: 10
+
+- name: Get all applications
+  ansible.builtin.shell: |
+    set -eo pipefail
+    kubectl get applications -n argocd -o json | jq -r '.items[] | select(.metadata.name != "root") | .metadata.name'
+  args:
+    executable: /bin/bash
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
+  register: applications
+  changed_when: false
