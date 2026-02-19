@@ -16,7 +16,6 @@ spec:
         app: qbittorrent
     spec:
       hostNetwork: true
-      nodeName: vengeance
       containers:
       - image: lscr.io/linuxserver/qbittorrent:latest
         name: qbittorrent
