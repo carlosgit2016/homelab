@@ -2,15 +2,15 @@
   hosts: controlplane
   become: true
   environment:
-    CONTAINERD_VERSION: "2.0.0"
-    RUNC_VERSION: "1.2.2"
-    CNI_PLUGIN_VERSION: "1.6.0"
+    CONTAINERD_VERSION: "2.2.1"
+    RUNC_VERSION: "1.4.0"
+    CNI_PLUGIN_VERSION: "1.9.0"
   vars:
-    crictl_version: "1.31.1"
-    kubernetes_version: "1.31"
+    crictl_version: "1.35.0"
+    kubernetes_version: "1.35"
   roles:
-    - sourcesupdate
     - common
+    - sourcesupdate
     - containerd
     - crictl
     - k8stools
@@ -24,20 +24,20 @@
   become: true
   gather_facts: false
   vars:
-    calico_version: "3.29.0"
+    calico_version: "3.31.3"
   tasks:
     - name: Cni installation
       ansible.builtin.include_tasks: roles/controlplane/tasks/cni.yaml
 
-- name: Removing taints # K8s add No Schedule taints to the control plane node on purpose for sec reasons
+- name: Removing controlplane taints
   hosts: controlplane
   become: true
-  gather_facts: false
+  gather_facts: true
   tasks:
-    - name: Removing taints from vengeance node
+    - name: Removing controlplane taints
       kubernetes.core.k8s_taint:
         state: absent
-        name: vengeance
+        name: "{{ ansible_hostname }}"
         taints:
           - effect: NoSchedule
             key: "node-role.kubernetes.io/control-plane"
