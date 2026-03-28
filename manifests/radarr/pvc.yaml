@@ -6,8 +6,6 @@ spec:
   accessModes:
     - ReadWriteMany
   resources:
-    limits:
-      storage: 10Gi
     requests:
       storage: 5Gi
   storageClassName: longhorn
