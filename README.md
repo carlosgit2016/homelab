@@ -82,6 +82,7 @@ graph LR
 
 2. **Run Ansible playbooks** (from `ansible/` directory):
    ```bash
+   cd ansible/
    ansible-playbook -i inventory.yaml controlplane.yaml
    ansible-playbook -i inventory.yaml nodes.yaml
    ansible-playbook -i inventory.yaml argocd.yaml
@@ -89,7 +90,7 @@ graph LR
 
 3. **Create Kubernetes user**:
    ```bash
-   ./scripts/create-k8s-user.sh <username>
+   ./scripts/create-k8s-user.sh <user> # left empty for cflor
    ```
 
 ### Access
@@ -105,15 +106,6 @@ graph LR
 **Radarr** - http://192.168.15.20:30320
 
 **Longhorn** - http://192.168.15.20:30318
-
-### Create Kubernetes User
-
-Run on control plane:
-```bash
-./scripts/create-k8s-user.sh <username>
-```
-
-Creates kubeconfig at `~/.kube/contexts/<username>-config`. Requires ClusterRoleBinding (see `manifests/rbac/`).
 
 ### Configure Kubelet TLS Bootstrap
 
