@@ -1,0 +1,11 @@
+# Sealed Secrets Controller — minimal values (defaults are sufficient)
+# After ArgoCD syncs this application, run once to bootstrap SealedSecrets:
+#
+#   kubeseal --fetch-cert \
+#     --controller-name=sealed-secrets-controller \
+#     --controller-namespace=kube-system \
+#     > /tmp/sealed-secrets-cert.pem
+#
+# Then see manifests/openclaw/sealed-secret.yaml for the kubeseal commands.
+
+fullnameOverride: sealed-secrets-controller

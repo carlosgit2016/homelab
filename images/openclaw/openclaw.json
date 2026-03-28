@@ -1,0 +1,17 @@
+{
+  "model": "google/gemini-2.0-flash",
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "botToken": "${TELEGRAM_BOT_TOKEN}",
+      "dmPolicy": "allowlist",
+      "allowFrom": [8542985250]
+    }
+  },
+  "crons": [
+    {
+      "schedule": "*/5 * * * *",
+      "prompt": "Run a cluster health check: inspect all pod and node statuses, check ArgoCD sync health, and act on any issues per your AGENTS.md instructions."
+    }
+  ]
+}

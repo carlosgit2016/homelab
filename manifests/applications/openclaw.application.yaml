@@ -1,28 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: root
+  name: openclaw
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/carlosgit2016/homelab.git
-    path: manifests/applications
-    targetRevision: HEAD
+    targetRevision: feat/openclaw-bootstrap
+    path: manifests/openclaw
     directory:
-     recurse: false
-     include: '*.application.yaml'
-
+      recurse: false
+      include: '*.yaml'
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
-
+    namespace: openclaw
   syncPolicy:
     automated:
-      enabled: true
       prune: true
-      selfHeal: false
-      allowEmpty: false
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - PruneLast=true
