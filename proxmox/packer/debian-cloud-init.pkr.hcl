@@ -33,7 +33,7 @@ source "proxmox-iso" "debian" {
   # Disk Configuration
   scsi_controller = "virtio-scsi-single"
   disks {
-    disk_size    = "20G"
+    disk_size    = "100G"
     storage_pool = "local-lvm"
     type         = "scsi"
   }

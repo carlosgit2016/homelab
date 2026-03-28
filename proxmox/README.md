@@ -52,9 +52,9 @@ This creates a reusable Debian cloud-init template (VM ID 9000):
 
 ```bash
 cd packer
-packer init debian-cloud-init.pkr.hcl
-packer validate debian-cloud-init.pkr.hcl
-packer build debian-cloud-init.pkr.hcl
+packer init .
+packer validate .
+packer build -force . # -force in case already exists
 ```
 
 **Expected time:** 15-20 minutes
@@ -88,28 +88,16 @@ terraform apply
 
 Wait 3-5 minutes after apply for cloud-init to configure networking and SSH on each VM.
 
-**Verification:**
+**Verification (Necessary to trust hosts):**
 ```bash
 # Test SSH access
-ssh -i ~/.ssh/homelab_id_rsa debian@192.168.15.20
-ssh -i ~/.ssh/homelab_id_rsa debian@192.168.15.21
-ssh -i ~/.ssh/homelab_id_rsa debian@192.168.15.22
+ssh -i ~/.ssh/homelab_id_rsa cflor@192.168.15.20
+ssh -i ~/.ssh/homelab_id_rsa cflor@192.168.15.21
+ssh -i ~/.ssh/homelab_id_rsa cflor@192.168.15.22
 
 # Check cloud-init completion
-ssh -i ~/.ssh/homelab_id_rsa debian@192.168.15.20 "cloud-init status"
+ssh -i ~/.ssh/homelab_id_rsa cflor@192.168.15.20 "cloud-init status"
 # Should show: status: done
-```
-
-### 4. Bootstrap Kubernetes Cluster
-
-Update Ansible inventory (already configured for these VMs) and run playbooks:
-
-```bash
-cd ../ansible
-ansible all -i inventory.yaml -m ping
-ansible-playbook -i inventory.yaml controlplane.yaml  # Setup phoenix
-ansible-playbook -i inventory.yaml nodes.yaml         # Join yamato and defcom
-ansible-playbook -i inventory.yaml argocd.yaml        # Deploy ArgoCD
 ```
 
 ## Directory Structure
@@ -131,27 +119,12 @@ proxmox/
 └── README.md                          # This file
 ```
 
-## Rebuilding Template
-
-To rebuild the Packer template (e.g., to update packages or configuration):
+## Delete existing template 
 
 ```bash
 # Delete existing template
 ssh proxmox.cflor.org "qm destroy 9000"
-
-# Rebuild
-cd packer
-packer build debian-cloud-init.pkr.hcl
 ```
-
-## Destroying VMs
-
-```bash
-cd terraform
-terraform destroy
-```
-
-This removes the VMs but keeps the template for future use.
 
 ## Troubleshooting
 
@@ -172,11 +145,6 @@ This removes the VMs but keeps the template for future use.
 - Ensure cloud-init has finished: `ssh debian@<ip> "cloud-init status"`
 - Check VM console in Proxmox web UI for errors
 - Verify static IP configuration: `ssh debian@<ip> "ip addr"`
-
-### Terraform apply fails with "template not found"
-
-- Verify template exists: `ssh proxmox.cflor.org "qm list | grep 9000"`
-- Run Packer build first to create template
 
 ## Notes
 

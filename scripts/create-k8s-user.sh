@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 USERNAME="${1:-cflor}"
 CONTROL_PLANE="${2:-192.168.15.20}"
@@ -40,26 +40,26 @@ EOF
 scp "/tmp/${USERNAME}-k8s-csr.yaml" "${CONTROL_PLANE}:/tmp/${USERNAME}-k8s-csr.yaml"
 
 # Apply CSR
-ssh "$CONTROL_PLANE" "kubectl apply -f /tmp/${USERNAME}-k8s-csr.yaml --kubeconfig=$KUBECONFIG"
+ssh "$CONTROL_PLANE" "sudo kubectl apply -f /tmp/${USERNAME}-k8s-csr.yaml --kubeconfig=$KUBECONFIG"
 
 # Approve CSR
-ssh "$CONTROL_PLANE" "kubectl certificate approve $USERNAME --kubeconfig=$KUBECONFIG"
+ssh "$CONTROL_PLANE" "sudo kubectl certificate approve $USERNAME --kubeconfig=$KUBECONFIG"
 
 # Wait for certificate
 sleep 2
 
 # Get signed certificate
-ssh "$CONTROL_PLANE" "kubectl get csr $USERNAME -o jsonpath='{.status.certificate}' --kubeconfig=$KUBECONFIG" | base64 -d > "$OUTPUT_DIR/${USERNAME}.crt"
+ssh "$CONTROL_PLANE" "sudo kubectl get csr $USERNAME -o jsonpath='{.status.certificate}' --kubeconfig=$KUBECONFIG" | base64 -d > "$OUTPUT_DIR/${USERNAME}.crt"
 
 # Copy CA certificate from control plane
-scp "${CONTROL_PLANE}:/etc/kubernetes/pki/ca.crt" "$OUTPUT_DIR/ca.crt"
+scp "${CONTROL_PLANE}:/etc/kubernetes/pki/ca.crt" "$OUTPUT_DIR/${USERNAME}_ca.crt"
 
 # Generate kubeconfig
-cat > "$OUTPUT_DIR/${USERNAME}-config" <<EOF
+cat > "$OUTPUT_DIR/${USERNAME}_config" <<EOF
 apiVersion: v1
 clusters:
 - cluster:
-    certificate-authority: ${OUTPUT_DIR}/ca.crt
+    certificate-authority: ${OUTPUT_DIR}/${USERNAME}_ca.crt
     server: https://192.168.15.20:6443
   name: homelab
 contexts:
@@ -78,15 +78,25 @@ users:
     client-key: ${OUTPUT_DIR}/${USERNAME}.key
 EOF
 
+# Bind user to cluster-admin role (skip if binding already exists)
+if ssh "$CONTROL_PLANE" "sudo kubectl get clusterrolebinding ${USERNAME}-cluster-admin --kubeconfig=$KUBECONFIG &>/dev/null"; then
+  echo "ClusterRoleBinding '${USERNAME}-cluster-admin' already exists, skipping"
+else
+  ssh "$CONTROL_PLANE" "sudo kubectl create clusterrolebinding ${USERNAME}-cluster-admin \
+    --clusterrole=cluster-admin \
+    --user=${USERNAME} \
+    --kubeconfig=$KUBECONFIG"
+fi
+
 # Set permissions
-chmod 600 "$OUTPUT_DIR/${USERNAME}.key" "$OUTPUT_DIR/${USERNAME}.crt" "$OUTPUT_DIR/${USERNAME}-config"
+chmod 600 "$OUTPUT_DIR/${USERNAME}.key" "$OUTPUT_DIR/${USERNAME}.crt" "$OUTPUT_DIR/${USERNAME}_config"
 
 # Cleanup
 rm -f "/tmp/${USERNAME}.csr" "/tmp/${USERNAME}-k8s-csr.yaml"
 ssh "$CONTROL_PLANE" "rm -f /tmp/${USERNAME}-k8s-csr.yaml"
 
 echo "✓ User created successfully"
-echo "  Kubeconfig: $OUTPUT_DIR/${USERNAME}-config"
+echo "  Kubeconfig: $OUTPUT_DIR/${USERNAME}_config"
 echo "  Control plane: $CONTROL_PLANE"
 echo ""
-echo "Test with: kubectl --kubeconfig=$OUTPUT_DIR/${USERNAME}-config get nodes"
+echo "Test with: kubectl --kubeconfig=$OUTPUT_DIR/${USERNAME}_config get nodes"
