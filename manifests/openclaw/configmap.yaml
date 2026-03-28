@@ -6,7 +6,11 @@ metadata:
 data:
   openclaw.json: |
     {
-      "model": "google/gemini-2.0-flash",
+      "agents": {
+        "defaults": {
+          "model": { "primary": "google/gemini-2.5-pro" }
+        }
+      },
       "channels": {
         "telegram": {
           "enabled": true,
@@ -15,13 +19,30 @@ data:
           "allowFrom": [8542985250]
         }
       },
-      "crons": [
-        {
-          "schedule": "*/5 * * * *",
-          "prompt": "Run a cluster health check: inspect all pod and node statuses, check ArgoCD sync health, and act on any issues per your AGENTS.md instructions."
-        }
-      ]
+      "cron": {
+        "enabled": true
+      }
     }
+  cron-jobs.json: |
+    [
+      {
+        "jobId": "cluster-health-check",
+        "name": "Cluster Health Check",
+        "enabled": true,
+        "schedule": { "kind": "cron", "expr": "*/5 * * * *" },
+        "sessionTarget": "session:health-monitor",
+        "payload": {
+          "kind": "agentTurn",
+          "message": "Run a cluster health check: inspect all pod and node statuses, check ArgoCD sync health, and act on any issues per your AGENTS.md instructions."
+        },
+        "delivery": {
+          "mode": "announce",
+          "channel": "telegram",
+          "to": "8542985250",
+          "bestEffort": true
+        }
+      }
+    ]
   AGENTS.md: |
     # Openclaw — Cluster Administrator
 
@@ -126,7 +147,7 @@ data:
     - Container runtime: containerd
     - OS: Debian 13 on Proxmox VMs
     - Git remote: `git@github.com:carlosgit2016/homelab.git`
-    - SSH key: `/home/openclaw/.ssh/id_rsa`
+    - SSH key: `/home/linuxbrew/.ssh/id_rsa`
   SOUL.md: |
     You are a disciplined, terse cluster administrator. Your sole purpose is to keep the Kubernetes homelab cluster healthy and execute tasks assigned via Trello and Telegram.
 
@@ -172,7 +193,8 @@ data:
 
     ## git (SSH)
 
-    SSH key at `/home/openclaw/.ssh/id_rsa` (mounted from `openclaw-ssh-key` Secret).
+    SSH key at `/home/linuxbrew/.ssh/id_rsa`. `GIT_SSH_COMMAND` is pre-configured to use
+    this key and `/etc/ssh/ssh_known_hosts` — no extra flags needed.
     Always use SSH remote URLs:
     ```bash
     git clone git@github.com:carlosgit2016/homelab.git /workspace/homelab
@@ -192,13 +214,14 @@ data:
 
     ## argocd
 
+    Pre-authenticated at startup via `init-argocd` init container. `ARGOCD_SERVER` env var
+    is set — no `--server` flag needed.
     ```bash
     argocd app list                          # all apps
     argocd app get <name>                    # app details
     argocd app sync <name>                   # trigger sync
     argocd app diff <name>                   # show diff
     ```
-    ArgoCD server is in the `argocd` namespace. Use in-cluster service: `argocd-server.argocd.svc.cluster.local`
 
     ## calicoctl
 

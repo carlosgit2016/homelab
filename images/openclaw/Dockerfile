@@ -50,7 +50,11 @@ RUN ssh-keyscan github.com >> /etc/ssh/ssh_known_hosts
 
 # ── 5. Prepare Homebrew directory owned by UID 1000 ──────────────────────────
 # Homebrew refuses to run as root — all root ops must be done above this line
-RUN mkdir -p /home/linuxbrew && chown -R 1000:1000 /home/linuxbrew
+# Also pre-create .openclaw/workspace and .ssh so ConfigMap subPath mounts work
+RUN mkdir -p /home/linuxbrew/.openclaw/workspace \
+                /home/linuxbrew/.openclaw/cron \
+                /home/linuxbrew/.ssh \
+    && chown -R 1000:1000 /home/linuxbrew
 
 ENV HOME=/home/linuxbrew
 USER 1000
