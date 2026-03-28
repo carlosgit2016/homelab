@@ -81,3 +81,15 @@ variable "hostname" {
   type        = string
   default     = ""
 }
+
+variable "disk_size" {
+  description = "Disk size in GB"
+  type        = number
+  default     = 100
+}
+
+variable "disk_datastore_id" {
+  description = "Proxmox datastore ID for the VM disk"
+  type        = string
+  default     = "local-lvm"
+}

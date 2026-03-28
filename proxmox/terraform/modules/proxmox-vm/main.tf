@@ -32,6 +32,12 @@ resource "proxmox_virtual_environment_vm" "vm" {
     enabled = true
   }
 
+  disk {
+    datastore_id = var.disk_datastore_id
+    interface    = "scsi0"
+    size         = var.disk_size
+  }
+
   network_device {
     bridge      = "vmbr0"
     mac_address = var.mac_address

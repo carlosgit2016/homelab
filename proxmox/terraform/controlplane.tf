@@ -11,4 +11,5 @@ module "phoenix" {
   gateway     = var.gateway
   dns         = var.dns
   hostname    = "phoenix"
+  disk_size   = 150
 }
