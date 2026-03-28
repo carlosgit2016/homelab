@@ -14,3 +14,6 @@ proxmox/terraform/.terraform/
 proxmox/terraform/*.tfstate
 proxmox/terraform/*.tfstate.backup
 proxmox/terraform/.terraform.lock.hcl
+
+# Secrets
+.env
