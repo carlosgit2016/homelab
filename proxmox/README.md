@@ -119,7 +119,7 @@ proxmox/
 └── README.md                          # This file
 ```
 
-## Delete existing template 
+## Delete existing template
 
 ```bash
 # Delete existing template
