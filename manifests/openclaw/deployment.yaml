@@ -53,7 +53,6 @@ spec:
               cp /config/TOOLS.md      /openclaw-home/workspace/TOOLS.md
               cp /config/IDENTITY.md   /openclaw-home/workspace/IDENTITY.md
               cp /config/USER.md       /openclaw-home/workspace/USER.md
-              cp /config/cron-jobs.json /openclaw-home/cron/jobs.json
           volumeMounts:
             - name: openclaw-home
               mountPath: /openclaw-home
