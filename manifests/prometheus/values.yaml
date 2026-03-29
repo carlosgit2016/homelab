@@ -1,0 +1,45 @@
+# kube-prometheus-stack values
+# Ref: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+
+## Disable admission webhooks to avoid ArgoCD hook-job deadlock issues
+prometheusOperator:
+  admissionWebhooks:
+    enabled: false
+
+
+## Prometheus
+prometheus:
+  prometheusSpec:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+
+## Alertmanager
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+
+## Grafana
+grafana:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+## kube-state-metrics
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+## prometheus-node-exporter — DaemonSet, must run on all nodes (no affinity)
+prometheus-node-exporter:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 32Mi

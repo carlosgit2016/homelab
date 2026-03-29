@@ -448,6 +448,18 @@ longhornUI:
   ## and uncomment this example block
   #  label-key1: "label-value1"
   #  label-key2: "label-value2"
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - longhorn-ui
+          topologyKey: kubernetes.io/hostname
 
 ingress:
   # -- Setting that allows Longhorn to generate ingress records for the Longhorn UI service.
