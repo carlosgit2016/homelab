@@ -46,7 +46,7 @@ spec:
             - sh
             - -c
             - |
-              mkdir -p /openclaw-home/workspace /openclaw-home/cron
+              mkdir -p /openclaw-home/workspace /openclaw-home/cron /openclaw-home/git
               cp /config/openclaw.json  /openclaw-home/openclaw.json
               cp /config/AGENTS.md     /openclaw-home/workspace/AGENTS.md
               cp /config/SOUL.md       /openclaw-home/workspace/SOUL.md
@@ -54,7 +54,7 @@ spec:
               cp /config/IDENTITY.md   /openclaw-home/workspace/IDENTITY.md
               cp /config/USER.md       /openclaw-home/workspace/USER.md
           volumeMounts:
-            - name: openclaw-home
+            - name: workspace
               mountPath: /openclaw-home
             - name: openclaw-config
               mountPath: /config
@@ -104,17 +104,13 @@ spec:
             timeoutSeconds: 10
             failureThreshold: 3
           volumeMounts:
-            - name: openclaw-home
-              mountPath: /home/linuxbrew/.openclaw
             - name: workspace
-              mountPath: /workspace
+              mountPath: /home/linuxbrew/.openclaw
             - name: ssh-key
               mountPath: /home/linuxbrew/.ssh
             - name: argocd-config
               mountPath: /home/linuxbrew/.config/argocd
       volumes:
-        - name: openclaw-home
-          emptyDir: {}
         - name: openclaw-config
           configMap:
             name: openclaw-config
