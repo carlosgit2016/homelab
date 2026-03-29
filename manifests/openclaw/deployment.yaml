@@ -5,6 +5,8 @@ metadata:
   namespace: openclaw
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: openclaw
@@ -82,6 +84,26 @@ spec:
               value: argocd-server.argocd.svc.cflor.org
             - name: GIT_SSH_COMMAND
               value: "ssh -i /home/linuxbrew/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/etc/ssh/ssh_known_hosts"
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - openclaw health --json | jq -e '.ok == true'
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - openclaw health --json | jq -e '.ok == true'
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 3
           volumeMounts:
             - name: openclaw-home
               mountPath: /home/linuxbrew/.openclaw
