@@ -1,3 +1,15 @@
+## Global
+global:
+  # Allow scheduling on control-plane node (phoenix)
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+
+  # Prefer spreading ArgoCD components across different nodes
+  affinity:
+    podAntiAffinity: soft
+
 ## Server
 server:
   # -- Argo CD server name
