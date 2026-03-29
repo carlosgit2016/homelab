@@ -14,14 +14,6 @@ spec:
       labels:
         app: jackett
     spec:
-      affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              preference:
-                matchExpressions:
-                  - key: node-role.kubernetes.io/control-plane
-                    operator: DoesNotExist
       terminationGracePeriodSeconds: 10
       containers:
       - name: jackett
@@ -34,6 +26,10 @@ spec:
           mountPath: /downloads
         - name: data
           mountPath: /config
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
         env:
         - name: PUID
           value: "1000"

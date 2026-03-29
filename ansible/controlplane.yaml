@@ -28,19 +28,3 @@
   tasks:
     - name: Cni installation
       ansible.builtin.include_tasks: roles/controlplane/tasks/cni.yaml
-
-- name: Removing controlplane taints
-  hosts: controlplane
-  become: true
-  gather_facts: true
-  tasks:
-    - name: Removing controlplane taints
-      kubernetes.core.k8s_taint:
-        state: absent
-        name: "{{ ansible_hostname }}"
-        taints:
-          - effect: NoSchedule
-            key: "node-role.kubernetes.io/control-plane"
-        kubeconfig: "{{ kubeconfig }}"
-        context: "{{ context }}"
-      changed_when: false

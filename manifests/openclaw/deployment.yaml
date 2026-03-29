@@ -16,6 +16,10 @@ spec:
         app: openclaw
     spec:
       serviceAccountName: openclaw
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
       securityContext:
         runAsUser: 1000
         runAsNonRoot: true
@@ -24,6 +28,10 @@ spec:
         - name: init-argocd
           image: ghcr.io/carlosgit2016/openclaw:latest
           imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
           env:
             - name: HOME
               value: /home/linuxbrew
@@ -42,6 +50,10 @@ spec:
               mountPath: /home/linuxbrew/.config/argocd
         - name: init-config
           image: busybox:latest
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
           command:
             - sh
             - -c
@@ -63,6 +75,10 @@ spec:
         - name: openclaw
           image: ghcr.io/carlosgit2016/openclaw:latest
           imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
           env:
             - name: GEMINI_API_KEY
               valueFrom:
@@ -79,6 +95,8 @@ spec:
                 secretKeyRef:
                   name: openclaw-secrets
                   key: TELEGRAM_CHAT_ID
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=1536"
             - name: ARGOCD_SERVER
               value: argocd-server.argocd.svc.cflor.org
             - name: GIT_SSH_COMMAND

@@ -36,7 +36,10 @@ spec:
           - name: data
             mountPath: /downloads
             subPath: downloads/
-        resources: {}
+        resources:
+          requests:
+            cpu: 150m
+            memory: 384Mi
       volumes:
         - name: data
           persistentVolumeClaim:

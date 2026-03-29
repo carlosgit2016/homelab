@@ -44,7 +44,10 @@ spec:
           - name: data
             mountPath: /downloads
             subPath: downloads/
-        resources: {}
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
 
       volumes:
         - name: data

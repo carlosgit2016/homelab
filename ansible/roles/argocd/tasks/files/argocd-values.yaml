@@ -204,13 +204,10 @@ server:
   podLabels: {}
 
   # -- Resource limits and requests for the Argo CD server
-  resources: {}
-  #  limits:
-  #    cpu: 100m
-  #    memory: 128Mi
-  #  requests:
-  #    cpu: 50m
-  #    memory: 64Mi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
   # Server container ports
   containerPorts:
@@ -527,3 +524,31 @@ server:
       # - hosts:
       #   - argocd.example.com
       #   secretName: your-certificate-name
+
+## Repo Server
+repoServer:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+## Application Controller
+controller:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+## Redis
+redis:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+## Dex
+dex:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi

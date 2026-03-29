@@ -11,8 +11,8 @@ spec:
       ref: valuesRepo
 
     - repoURL: https://prometheus-community.github.io/helm-charts
-      targetRevision: "82.0.2"
-      chart: prometheus-community/kube-prometheus-stack
+      targetRevision: "82.15.1"
+      chart: kube-prometheus-stack
       helm:
         valueFiles:
           - $valuesRepo/manifests/prometheus/values.yaml
@@ -22,10 +22,11 @@ spec:
 
   syncPolicy:
     automated:
-      enabled: true
+      enabled: false
       prune: true
       selfHeal: false
       allowEmpty: false
     syncOptions:
       - CreateNamespace=true
       - PruneLast=true
+      - ServerSideApply=true

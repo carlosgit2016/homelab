@@ -9,3 +9,8 @@
 # Then see manifests/openclaw/sealed-secret.yaml for the kubeseal commands.
 
 fullnameOverride: sealed-secrets-controller
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
