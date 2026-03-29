@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/carlosgit2016/homelab.git
-    targetRevision: feat/openclaw-bootstrap
+    targetRevision: HEAD
     path: manifests/openclaw
     directory:
       recurse: false
