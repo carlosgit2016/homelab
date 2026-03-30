@@ -1,0 +1,57 @@
+botName: "" # required — set in per-bot values.yaml
+
+image:
+  repository: ghcr.io/carlosgit2016/openclaw
+  tag: latest
+  pullPolicy: Always
+
+namespace: openclaw
+
+clusterRole: cluster-admin
+
+# Derived from botName if not set; override only if the raw configmap/secret
+# use a different naming convention.
+configMapName: ""
+secretName: ""
+sshKeySecretName: ""
+
+resources:
+  main:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  initArgocd:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  initConfig:
+    requests:
+      cpu: 50m
+      memory: 32Mi
+
+pvc:
+  storageRequest: 1Gi
+  storageLimit: 10Gi
+
+nodeOptions: "--max-old-space-size=1536"
+
+# initContainers — optional, add only what this bot needs
+initContainers:
+  # argocd: pre-authenticates to ArgoCD before the main container starts.
+  # Mounts argocd-config emptyDir at /home/linuxbrew/.config/argocd.
+  argocd:
+    enabled: false
+    server: ""
+
+git:
+  sshEnabled: false
+
+tolerations:
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule
+
+securityContext:
+  runAsUser: 1000
+  runAsNonRoot: true
+  fsGroup: 1000
