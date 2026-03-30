@@ -1,0 +1,9 @@
+botName: main
+
+initContainers:
+  argocd:
+    enabled: true
+    server: argocd-server.argocd.svc.cflor.org
+
+git:
+  sshEnabled: true
