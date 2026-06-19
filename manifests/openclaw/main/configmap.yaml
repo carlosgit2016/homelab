@@ -1,8 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: openclaw-config
+  name: main-openclaw-config
   namespace: openclaw
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 data:
   openclaw.json: |
     {
@@ -229,15 +231,15 @@ data:
       - `init-argocd`: authenticates to ArgoCD using `argocd-initial-admin-secret` from the `argocd` namespace
       - `init-config`: copies this configmap (AGENTS.md, SOUL.md, TOOLS.md, IDENTITY.md, USER.md, openclaw.json) into `$HOME/.openclaw/workspace/` and creates working directories
     - **Volumes**:
-      - PVC `openclaw-workspace` (Longhorn, 1-10Gi) mounted at `$HOME/.openclaw` -- persistent across restarts
-      - Secret `openclaw-ssh-key` mounted at `$HOME/.ssh` (SSH key for git)
+      - PVC `main-openclaw-workspace` (Longhorn, 1-10Gi) mounted at `$HOME/.openclaw` -- persistent across restarts
+      - Secret `main-openclaw-ssh-key` mounted at `$HOME/.ssh` (SSH key for git)
       - EmptyDir `argocd-config` mounted at `$HOME/.config/argocd` (ArgoCD session, ephemeral)
     - **Health checks**:
       - Liveness: `openclaw health --json | jq -e '.ok == true'` (30s delay, 30s period, 3 failures = restart)
       - Readiness: same command (15s delay, 10s period, 3 failures = not ready)
-    - **ServiceAccount**: `openclaw` with `cluster-admin` ClusterRoleBinding (`openclaw-cluster-admin`)
+    - **ServiceAccount**: `main-openclaw` with `cluster-admin` ClusterRoleBinding (`main-openclaw-cluster-admin`)
     - **Managed by ArgoCD**: Application `openclaw` in `argocd` namespace, auto-sync with prune and self-heal enabled
-    - **Secrets**: `GEMINI_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` injected as env vars from SealedSecret `openclaw-secrets`
+    - **Secrets**: `GEMINI_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` injected as env vars from SealedSecret `main-openclaw-secrets`
     - **Git access**: SSH key at `/home/linuxbrew/.ssh/id_rsa` via pre-configured `GIT_SSH_COMMAND` env var
 
     Understanding your own deployment helps you:
@@ -251,13 +253,13 @@ data:
 
     ### Core Resources (openclaw namespace)
     - Namespace: `openclaw`
-    - Deployment: `openclaw`
-    - ServiceAccount: `openclaw`
-    - ClusterRoleBinding: `openclaw-cluster-admin`
-    - SealedSecret: `openclaw-secrets`
-    - SealedSecret: `openclaw-ssh-key`
-    - ConfigMap: `openclaw-config`
-    - PersistentVolumeClaim: `openclaw-workspace`
+    - Deployment: `main-openclaw`
+    - ServiceAccount: `main-openclaw`
+    - ClusterRoleBinding: `main-openclaw-cluster-admin`
+    - SealedSecret: `main-openclaw-secrets`
+    - SealedSecret: `main-openclaw-ssh-key`
+    - ConfigMap: `main-openclaw-config`
+    - PersistentVolumeClaim: `main-openclaw-workspace`
 
     ### Cross-Namespace Dependencies
     - Secret: `argocd-initial-admin-secret` (namespace: `argocd`)

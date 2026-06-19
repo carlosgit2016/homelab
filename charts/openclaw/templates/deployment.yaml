@@ -1,37 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: openclaw
-  namespace: openclaw
+  name: {{ include "openclaw.fullname" . }}
+  namespace: {{ .Values.namespace }}
 spec:
   replicas: 1
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: openclaw
+      app: {{ include "openclaw.fullname" . }}
   template:
     metadata:
       labels:
-        app: openclaw
+        app: {{ include "openclaw.fullname" . }}
     spec:
-      serviceAccountName: openclaw
-      tolerations:
-        - key: node-role.kubernetes.io/control-plane
-          operator: Exists
-          effect: NoSchedule
-      securityContext:
-        runAsUser: 1000
-        runAsNonRoot: true
-        fsGroup: 1000
+      serviceAccountName: {{ include "openclaw.fullname" . }}
+      tolerations: {{ toYaml .Values.tolerations | nindent 8 }}
+      securityContext: {{ toYaml .Values.securityContext | nindent 8 }}
       initContainers:
+        {{- if .Values.initContainers.argocd.enabled }}
         - name: init-argocd
-          image: ghcr.io/carlosgit2016/openclaw:latest
-          imagePullPolicy: Always
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: {{ .Values.resources.initArgocd.requests.cpu }}
+              memory: {{ .Values.resources.initArgocd.requests.memory }}
           env:
             - name: HOME
               value: /home/linuxbrew
@@ -42,18 +37,19 @@ spec:
               export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
               ARGOCD_PASS=$(kubectl get secret argocd-initial-admin-secret -n argocd \
                 -o jsonpath='{.data.password}' | base64 -d)
-              argocd login argocd-server.argocd.svc.cflor.org \
+              argocd login {{ .Values.initContainers.argocd.server }} \
                 --username admin --password "$ARGOCD_PASS" \
                 --insecure --grpc-web
           volumeMounts:
             - name: argocd-config
               mountPath: /home/linuxbrew/.config/argocd
+        {{- end }}
         - name: init-config
           image: busybox:latest
           resources:
             requests:
-              cpu: 50m
-              memory: 32Mi
+              cpu: {{ .Values.resources.initConfig.requests.cpu }}
+              memory: {{ .Values.resources.initConfig.requests.memory }}
           command:
             - sh
             - -c
@@ -73,34 +69,38 @@ spec:
               readOnly: true
       containers:
         - name: openclaw
-          image: ghcr.io/carlosgit2016/openclaw:latest
-          imagePullPolicy: Always
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             requests:
-              cpu: 250m
-              memory: 512Mi
+              cpu: {{ .Values.resources.main.requests.cpu }}
+              memory: {{ .Values.resources.main.requests.memory }}
           env:
             - name: GEMINI_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: openclaw-secrets
+                  name: {{ include "openclaw.secretName" . }}
                   key: GEMINI_API_KEY
             - name: TELEGRAM_BOT_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: openclaw-secrets
+                  name: {{ include "openclaw.secretName" . }}
                   key: TELEGRAM_BOT_TOKEN
             - name: TELEGRAM_CHAT_ID
               valueFrom:
                 secretKeyRef:
-                  name: openclaw-secrets
+                  name: {{ include "openclaw.secretName" . }}
                   key: TELEGRAM_CHAT_ID
             - name: NODE_OPTIONS
-              value: "--max-old-space-size=1536"
+              value: {{ .Values.nodeOptions | quote }}
+            {{- if .Values.initContainers.argocd.enabled }}
             - name: ARGOCD_SERVER
-              value: argocd-server.argocd.svc.cflor.org
+              value: {{ .Values.initContainers.argocd.server }}
+            {{- end }}
+            {{- if .Values.git.sshEnabled }}
             - name: GIT_SSH_COMMAND
               value: "ssh -i /home/linuxbrew/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/etc/ssh/ssh_known_hosts"
+            {{- end }}
           livenessProbe:
             exec:
               command:
@@ -126,21 +126,25 @@ spec:
               mountPath: /home/linuxbrew/.openclaw
             - name: ssh-key
               mountPath: /home/linuxbrew/.ssh
+            {{- if .Values.initContainers.argocd.enabled }}
             - name: argocd-config
               mountPath: /home/linuxbrew/.config/argocd
+            {{- end }}
       volumes:
         - name: openclaw-config
           configMap:
-            name: openclaw-config
+            name: {{ include "openclaw.configMapName" . }}
         - name: workspace
           persistentVolumeClaim:
-            claimName: openclaw-workspace
+            claimName: {{ include "openclaw.fullname" . }}-workspace
         - name: ssh-key
           secret:
-            secretName: openclaw-ssh-key
+            secretName: {{ include "openclaw.sshKeySecretName" . }}
             defaultMode: 0600
             items:
               - key: id_rsa
                 path: id_rsa
+        {{- if .Values.initContainers.argocd.enabled }}
         - name: argocd-config
           emptyDir: {}
+        {{- end }}
